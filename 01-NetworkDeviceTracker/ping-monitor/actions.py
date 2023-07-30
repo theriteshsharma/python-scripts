@@ -2,7 +2,7 @@ import pandas as pd
 import re
 
 
-def add_device(input_filepath):
+def add_device(input_filepath) -> None:
     """
     Add Device to the Given File
     Args:
@@ -17,17 +17,17 @@ def add_device(input_filepath):
     df = pd.read_json(input_filepath)
     print("Enter Device Details")
     while True:
-        device_id: int = int(input("Device Id: "))
+        device_id: int = int(input("Device Id: ").strip())
         if ('id' not in df.columns) or ('id' in df.columns and device_id not in df['id'].values):
             break
         print('Id is already Present Try Another one')
     while True:
-        device_name: str = input('Device Name: ')
+        device_name: str = input('Device Name: ').strip()
         if device_name != '':
             break
-        print(" Name Cannot be Empty")
+        print("Name Cannot be Empty")
     while True:
-        device_ip: str = input("Device Ip: ")
+        device_ip: str = input("Device Ip: ").strip()
         validate_ip = re.compile(
             "^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])$").match(
             device_ip)
@@ -41,7 +41,7 @@ def add_device(input_filepath):
     print('---------------------------')
 
 
-def delete_device(input_filepath, _id):
+def delete_device(input_filepath, _id) -> None:
     """
     Delete a record from file
     Args:
@@ -51,6 +51,14 @@ def delete_device(input_filepath, _id):
     Returns:
 
     """
+    df = pd.read_json(input_filepath)
+    if df.empty:
+        raise ValueError('No devices to edit add some to begin with')
+    idx = df.index[df['id'] == _id]
+    device = df.loc[idx]
+    if len(device) == 0:
+        raise ValueError('No Device Found with Id')
+
 
     df = pd.read_json(input_filepath)
     print(f"Deleting Device with ID: {_id}")
@@ -61,7 +69,7 @@ def delete_device(input_filepath, _id):
     print('---------------------------')
 
 
-def edit_device(input_filepath, _id):
+def edit_device(input_filepath, _id) -> None:
     """
     Edit a Existing Device
     Args:
@@ -99,7 +107,7 @@ def edit_device(input_filepath, _id):
     print('---------------------------')
 
 
-def list_devices(file_name):
+def list_devices(file_name) -> None:
     """
     List all Devices
     Args:

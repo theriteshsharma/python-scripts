@@ -8,14 +8,14 @@ from pythonping.executor import SuccessOn
 
 THREAD_WAIT_TIME = 20
 THREADS = 3
-OUTPUT_LIMIT = 1
-SCRIPT_TIME = 5 * 60
+OUTPUT_LIMIT = 3
+SCRIPT_TIME = 30
 
 job_queue = Queue()
 output_queue = Queue()
 
 
-def ping_ips(jobq: Queue, output: Queue):
+def ping_ips(jobq: Queue, output: Queue) -> None:
     """
     Selected an ip from jobq queue and save its status to the output
     Args:
@@ -31,8 +31,9 @@ def ping_ips(jobq: Queue, output: Queue):
             status: int = int(response.success(SuccessOn.All))  # Status Retrival
             print(f"Ping id: {task['id']}, Status: {status} ")
             output.put([task['id'], task['name'], datetime.now(), status])
-        except OSError:
-            print(f"Invalid Ip {task['ip']}")
+        except OSError as err:
+            print(f"Invalid Ip {task['ip']}:",end="")
+            print(err)
             output.put([task['id'], task['name'], datetime.now(), 0])
         finally:
             jobq.task_done()
@@ -45,8 +46,8 @@ def write_output(output: Queue, output_filename, once=False):
         once: bool
         output: Output Queue
     Returns:
-
     """
+    file_some = 'something'
     while True:
         if output.qsize() > OUTPUT_LIMIT or (once and OUTPUT_LIMIT != 0):
             print('writing output')
@@ -60,7 +61,6 @@ def write_output(output: Queue, output_filename, once=False):
 
 def monitor_device(input_filename, output_filename):
     try:
-
         # Creating Thread for ping and output
         for _ in range(THREADS):
             th = Thread(target=ping_ips, args=[job_queue, output_queue], daemon=True)
@@ -68,9 +68,10 @@ def monitor_device(input_filename, output_filename):
         out = Thread(target=write_output, args=[output_queue, output_filename], daemon=True)
 
         out.start()
-
+        cycle: int = 1
         # loop to set up ping every 5 minutes
         while True:
+            print(f"Cycle {cycle}")
             device_data = pd.read_json(input_filename)
             if device_data.empty:
                 raise ValueError(
@@ -79,6 +80,7 @@ def monitor_device(input_filename, output_filename):
             for idx, row in device_data.iterrows():
                 job_queue.put(row)
             print(job_queue.qsize())
+            cycle += 1
             sleep(SCRIPT_TIME)
     except FileNotFoundError:
         print(f"Input file {input_filename} not found")

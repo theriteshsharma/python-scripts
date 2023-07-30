@@ -5,4 +5,4 @@ venv/*
 /.idea/modules.xml
 /.idea/task1.iml
 /.idea/*
-../.idea/
+/ping-monitor/__pycache__/*
