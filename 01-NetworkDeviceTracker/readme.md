@@ -21,6 +21,16 @@ writes logs to output.csv for all the device in input.json
 python ping-monitor -i <input-file> -o <output-file>
  ```
 
+Ping a Ip
+```bash
+python ping-monitor ping 1.1.1.1
+```
+
+log status
+```bash
+python ping-monitor log-status
+```
+
 List Device
 ```bash 
 python ping-monitor list-devices

@@ -1,1 +1,27 @@
-[{"id":1,"name":"Device 1","ip":"192.168.0.1"},{"id":2,"name":"Ritesh","ip":"192.168.0.150"},{"id":5,"name":"Device 3","ip":"192.98.2.1"},{"id":6,"name":"Test Device","ip":"192.168.1.1"},{"id":3,"name":"Parantap","ip":"192.168.0.251"}]
+[
+  {
+    "id": 2,
+    "name": "Rohit",
+    "ip": "192.168.0.150"
+  },
+  {
+    "id": 5,
+    "name": "Device 3",
+    "ip": "192.98.2.1"
+  },
+  {
+    "id": 6,
+    "name": "Test Device",
+    "ip": "192.168.1.1"
+  },
+  {
+    "id": 3,
+    "name": "Parantap",
+    "ip": "192.168.0.251"
+  },
+  {
+    "id": 7,
+    "name": "Ritesh",
+    "ip": "100.1.1.1"
+  }
+]

@@ -4,10 +4,9 @@
 #####################################################
 import argparse
 import textwrap
-import os
 
-from actions import *
-from monitor import *
+from device_manager import Device,DeviceManger
+from device_monitor import DeviceMonitor
 
 HEADER = """
             +-------------------------+ 
@@ -19,6 +18,8 @@ HEADER = """
             Available action:
             | action | Args | Description              |
             --------------------------------------------
+            | ping           | <ip> | ping a specific ip
+            | log-status     |      | Log status
             | list-devices   |      | list all devices
             | add-device     |      | add a New Device
             | delete-device  | <id> | To Delete an device by id
@@ -37,41 +38,38 @@ def main() -> None:
     sub_parser.add_parser('add-device')
     sub_parser.add_parser('delete-device').add_argument('id', type=int)
     sub_parser.add_parser('edit-device').add_argument('id', type=int)
+    sub_parser.add_parser('ping').add_argument('ip', type=str)
+    sub_parser.add_parser('log-status')
 
     parser.add_argument('-i', '--input', default='device_data.json')
     parser.add_argument('-o', '--output', default='output.csv')
-    command = parser.parse_args()
 
+    # Pars
+    command = parser.parse_args()
     input_filename, output_filename = command.input, command.output
-    # Creating Empty File
-    if not os.path.isfile(input_filename):
-        print(f"{input_filename} Not Found \n Creating... {input_filename}")
-        file = open(input_filename, 'a')
-        file.write('[]')
-        file.close()
-    if not os.path.isfile(output_filename):
-        print(f"{output_filename} Not Found \n Creating... {input_filename}")
-        file = open(output_filename, 'a')
-        file.write('DeviceId, DeviceName, Status, Timestamp\n')
-        file.close()
-    try:
-        match command.action:
-            case 'list-devices':
-                list_devices(input_filename)
-            case 'add-device':
-                add_device(input_filename)
-            case "delete-device":
-                delete_device(input_filename, int(command.id))
-            case "edit-device":
-                edit_device(input_filename, int(command.id))
-            case None:
-                monitor_device(input_filename, output_filename)
-            case _:
-                print(f"{command} is a invalid command ")
-    except Exception as err:
-        print(err)
-        print("Terminated on Exception!")
-        exit(1)
+
+    device_manger: DeviceManger = DeviceManger(input_filename)
+
+    match command.action:
+        case 'ping':
+            device = Device('', '', command.ip)
+            print(f"Status for ip: {command.ip} is {device.ping()}")
+        case 'list-devices':
+            device_manger.list_devices()
+        case 'add-device':
+            device_manger.add_device()
+        case "delete-device":
+            device_manger.delete_device(command.id)
+        case "edit-device":
+            device_manger.edit_device(command.id)
+        case "log-status":
+            monitor_device = DeviceMonitor(device_manger.devices, output_filename)
+            monitor_device.log_status()
+        case None:
+            monitor_device = DeviceMonitor(device_manger.devices, output_filename)
+            monitor_device.start(delay=10);
+        case _:
+            print(f"{command} is a invalid command ")
 
 
 if __name__ == "__main__":
